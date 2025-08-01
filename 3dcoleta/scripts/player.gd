@@ -13,6 +13,9 @@ var direction = -transform.basis.z
 var throw_power := 10
 var holding = false #variavel apra identificar se o player esta segurando o espaco
 
+signal put_item()
+signal get_item()
+
 var aim = Node3D
 func _ready() -> void:
 	carry_position = $carry
@@ -59,8 +62,12 @@ func _physics_process(delta): #calcula a cada frame a fisica
 			throw_obj()
 		else :
 			drop_obj()
+	
+	if Input.is_action_just_pressed("interact_key") and carrying:
+		emit_signal('put_item')
 		
-	#ARRUMAR A DIRECAO DO THROW
+	if Input.is_action_just_pressed("interact_key") and not carrying:
+		emit_signal('get_item')
 		
 	move_and_slide() #faz o personagem se mover usando velocidade e uma funcao do characterbody3d
 
@@ -94,6 +101,12 @@ func throw_obj():
 	obj_carrying.reparent(get_tree().root)
 	var impulse = -$aim.global_transform.basis.z
 	obj_carrying.apply_impulse(impulse * throw_power)
+	obj_carrying = null
+	carrying = false
+	hold_time = 0
+	holding = false
+
+func put_obj():
 	obj_carrying = null
 	carrying = false
 	hold_time = 0
